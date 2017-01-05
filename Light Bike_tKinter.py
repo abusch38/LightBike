@@ -1,4 +1,5 @@
-import random
+##Light Bike game based on tkinter
+
 import time
 import sys
 from tkinter import *
@@ -28,30 +29,38 @@ class Game (object):
         self.s2 = self.canvas.create_text(600, 25, text= self.bike2_score, fill='blue', font ="Arial 16")
 
     def play_again(self):
-        
+        global both_trails
+
+        #gets rid of the onscreen buttons
+        self.button_quit.destroy()
+        self.button_again.destroy()
+
+        #resets the bikes
         Bike1.new_game(self)
         Bike2.new_game(self)
+
+        #resets the bike trails
         both_trails = []
         
-        '''
-        #checking the bike positions to make sure they reset.
-        #currently I need to get rid of the previous light bike trail.
-        print("checking the new bike positions to make sure they reset: ")
-        print("Bike 1 position is: ")
-        Bike1.check_position()
-        print("Bike 2 position is: ")
-        Bike2.check_position()
-        '''
-        
+        #starts the game over again
         self.mainloop()
             
     def crashed(self):
-        #this program is run everytime a bike crashes.
+        #this program is run every time a bike crashes.
         global both_trails
+
+        frame = Frame(self.tk)
+        frame.pack()
         
+        self.button_quit = Button(frame, text="QUIT", bg="green", command=quit)
+        self.button_quit.pack(side=LEFT)
+        self.button_again = Button(frame,text="PLAY AGAIN", bg = 'green', command=self.play_again)
+        self.button_again.pack(side=LEFT)
+
+        #Uncomment this option for playing again via the shell. 
+        '''
         play_again = input("Would you like to play again? Y/N: ")
-        #b = tkinter.Button(self.canvas, text="Would you like to \n play again?", activebackground = "purple",bg = "white", font = "Arial 16",height = 3, justify = CENTER, padx = 3, pady = 3, relief = RAISED, command = self.play_again)
-        #b.pack()
+        
         if play_again == "Y" or play_again =="y":
             print("Okay, here we go!")
             #reseting the bikes
@@ -59,15 +68,6 @@ class Game (object):
             Bike1.new_game(self)
             Bike2.new_game(self)
             both_trails = []
-
-            '''
-            #checking the bike positions to make sure they reset.
-            print("checking the new bike positions to make sure they reset: ")
-            print("Bike 1 position is: ")
-            Bike1.check_position()
-            print("Bike 2 position is: ")
-            Bike2.check_position()
-            '''
             
             self.mainloop()
             
@@ -78,7 +78,8 @@ class Game (object):
             print("Please enter either the letter 'Y' or the letter 'N'.")
             #run the crashed() program again.
             self.crashed()
-
+            '''
+        
     def score(self):
         #Develop a way to keep score between the light bikes.
 
@@ -86,14 +87,15 @@ class Game (object):
             self.canvas.delete(self.s2)
             self.bike2_score = self.bike2_score + 1
             self.s2 = self.canvas.create_text(600, 25, text= self.bike2_score, fill='blue', font ="Arial 16")
-            print("Player 1 crashed! \n Player 2 wins")
+            print("Player 1 crashed! \n Player 2 wins!")
         if Bike2.crash==True:
             self.canvas.delete(self.s1)
             self.bike1_score = self.bike1_score + 1
             self.s1 = self.canvas.create_text(100, 25, text= self.bike1_score, fill='red', font ="Arial 16")
-            print("Player 2 crashed! \n Player 1 wins")
+            print("Player 2 crashed! \n Player 1 wins!")
  
     def mainloop(self):
+        #The 'condition' is True until a bike crashes. Then it is set to false.
         condition = True
         print("starting mainloop()")
 
@@ -107,9 +109,11 @@ class Game (object):
             if Bike1.crash == True or Bike2.crash == True:
                 condition = False
                 self.score()
-                
+
+            #Have tkinter update the canvas    
             self.tk.update_idletasks()
             self.tk.update()
+            #Controls the speed at which the bikes move, i.e. it slows down the while loop. 
             time.sleep(0.05)
 
         #when a bike crashes, run this program
@@ -118,6 +122,7 @@ class Game (object):
 class Bike (object):
     global both_trails
 
+    #define the bike class. 
     def __init__(self,game,color):
         self.canvas = game.canvas
         self.canvas_width = self.canvas.winfo_width()
@@ -138,65 +143,58 @@ class Bike (object):
         self.crash = False
         self.started = False
 
+    #turning the bike. 
     def turn_left(self, evt):
-        self.x = -5
-        self.y= 0
-        self.direction = "left"
-        self.started = True
+        if self.direction == 'right':
+            pass
+        else:
+            self.x = -5
+            self.y= 0
+            self.direction = "left"
+            self.started = True
 
     def turn_right(self, evt):
-        self.x = 5
-        self.y= 0
-        self.direction = "right"
-        self.started = True
+        if self.direction == 'left':
+            pass
+        else:
+            self.x = 5
+            self.y= 0
+            self.direction = "right"
+            self.started = True
 
     def turn_up(self, evt):
-        self.y = -5
-        self.x = 0
-        self.direction = "up"
-        self.started = True
+        if self.direction == 'down':
+            pass
+        else:
+            self.y = -5
+            self.x = 0
+            self.direction = "up"
+            self.started = True
 
     def turn_down(self, evt):
-        self.y = 5
-        self.x = 0
-        self.direction = "down"
-        self.started = True
+        if self.direction == 'up':
+            pass
+        else:
+            self.y = 5
+            self.x = 0
+            self.direction = "down"
+            self.started = True
 
     def check_position(self):
         #this function is for the sole purpose of debugging
-        #prints the Bike's tKinter canvas id
+        #prints the Bike's tkinter canvas id
         print (self.id)
         #prints the Bike's coordinates
         print(self.canvas.coords(self.id))
 
     def MoveBike(self):
         global both_trails
-        #check the direction
-        #create a new rectangle in front of you.
-        #add the coordinates of the new rectangle to an list/array
-        #check to see if the current rectangle hits any of the other rectangles
+        #get the position of the bike
         pos = self.canvas.coords(self.id)
-        #Be sure to move first and then check to see whether you've hit yourself.
-        #self.trail.append(self.canvas.coords(self.id))
+        #put the bike position into an array which keeps track of all bikes' previous positions
         both_trails.append(self.canvas.coords(self.id))
-
+        #create a rectangle in front of the bike based on direction it's moving
         self.id = game.canvas.create_rectangle(pos[0]+self.x, pos[1]+self.y, pos[2]+self.x, pos[3]+self.y,fill=self.color, outline="")
-        '''if self.direction == "left":
-            #self.canvas = canvas
-            self.id = game.canvas.create_rectangle(pos[0]+self.x, pos[1], pos[2]+self.x, pos[3], fill=self.color, outline="")
-            
-        if self.direction == "right":
-            #self.canvas = canvas
-            self.id = game.canvas.create_rectangle(pos[0]+self.x, pos[1], pos[2]+self.x, pos[3], fill=self.color, outline="")
-
-        if self.direction == "up":
-            #self.canvas = canvas
-            self.id = game.canvas.create_rectangle(pos[0], pos[1]+self.y, pos[2], pos[3]+self.y, fill=self.color, outline="")
-
-        if self.direction == "down":
-            #self.canvas = canvas
-            self.id = game.canvas.create_rectangle(pos[0], pos[1]+self.y, pos[2], pos[3]+self.y, fill=self.color, outline="")
-            '''
     
     def checkhit(self):
         global both_trails
@@ -215,24 +213,18 @@ class Bike (object):
             self.x = 0
             self.crash = True
             
-            self.end_game
         if pos[2] >= self.canvas_width:
             self.x= 0
             self.crash = True
             
         if self.started == True:           
-            """for array in self.trail:
-                if pos == array:
-                    self.crash = True
-                    print("\n You crashed!!! \n")"""
             for array in both_trails:
                 if pos == array:
                     self.crash = True
 
-    def end_game(self):
-        pass
     
     def new_game(self, game):
+        #this resets the bike if the user wants to play again. 
         self.canvas.delete('all')
         self.canvas = game.canvas
         self.canvas_width = self.canvas.winfo_width()
@@ -256,6 +248,7 @@ class Bike (object):
 class Bike2(Bike):
     
     def __init__(self, game, color):
+        #sets up the bike.
         self.canvas = game.canvas
         self.canvas_width = self.canvas.winfo_width()
         self.canvas_height = self.canvas.winfo_height()
@@ -275,6 +268,7 @@ class Bike2(Bike):
         self.started = False
 
     def new_game(self, game):
+        #this resets the bike if the user wants to play again. 
         self.canvas = game.canvas
         self.canvas_width = self.canvas.winfo_width()
         self.canvas_height = self.canvas.winfo_height()
